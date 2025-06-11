@@ -1,0 +1,18 @@
+meta {
+  name: Verify User
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{api_base}}/auth/login
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "hure",
+    "password": "nüttchen"
+  }
+}

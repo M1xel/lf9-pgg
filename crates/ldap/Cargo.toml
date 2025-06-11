@@ -1,0 +1,12 @@
+[package]
+name = "ldap"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]
+actix-web = "4"
+serde = { version = "1", features = ["derive"] }
+ldap3 = "0.11"
+tokio = { version = "1", features = ["full"] }
+env_logger = "0.11"
+log = "0.4"

@@ -1,0 +1,15 @@
+meta {
+  name: Get specific Project
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{api_base}}/project/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 1c2bc42d-20d7-4cec-953f-acf691bad55a
+}

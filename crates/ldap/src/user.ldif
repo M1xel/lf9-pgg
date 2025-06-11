@@ -1,0 +1,29 @@
+dn: ou=users,dc=schule,dc=local
+objectClass: organizationalUnit
+ou: users
+
+dn: uid=schueler1,ou=users,dc=schule,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Schueler1
+sn: Mustermann
+uid: schueler1
+uidNumber: 1001
+gidNumber: 1001
+homeDirectory: /home/schueler1
+loginShell: /bin/bash
+userPassword: {SSHA}JDJhJDEwJG5EUFZ6U0pOSmpUckhOajRQY0hWNS5DNEp4Q2Mwa1pQSTZWYVhXeVdDMkFUMkFMY1do
+
+dn: uid=schueler2,ou=users,dc=schule,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: Schueler2
+sn: Beispiel
+uid: schueler2
+uidNumber: 1002
+gidNumber: 1002
+homeDirectory: /home/schueler2
+loginShell: /bin/bash
+userPassword: {SSHA}JDJhJDEwJEpNVTRzNUk4Z3dQclA1M2o1bU5FZWZKeTRHTlVndXZ0Q0VhblBuNlZXUENyaFZ4Q3NmS2lH

@@ -1,0 +1,44 @@
+[package]
+name = "backend"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]
+migration = { workspace = true }
+
+actix-web = "4"
+actix-session = { version = "0.10", features = ["redis-session"] }
+actix-cors = "0.7"
+actix-files = "0.6"
+tracing-actix-web = "0.7.16"
+
+argon2 = "0.5.3"
+thiserror = "2"
+
+env_logger = "0.11"
+log = "0.4"
+
+serde = { version = "1", features = ["derive"] }
+validator = { version = "0.20.0", features = ["derive"] }
+sea-orm = { version = "1.1", features = [
+    "sqlx-postgres",
+    "runtime-tokio-rustls",
+    "macros",
+] }
+uuid = "1"
+
+dotenvy = "0.15"
+
+[dev-dependencies]
+temp-env = "*"
+serial_test = "*"
+
+[features]
+serve = []
+
+[[bin]]
+name = "backend"
+path = "src/main.rs"
+
+[lints.clippy]
+all = "warn"

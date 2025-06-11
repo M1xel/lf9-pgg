@@ -1,0 +1,22 @@
+meta {
+  name: Update Project
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{api_base}}/project
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "id": "{{project_to_change}}",
+    "name": "ThisProjectHasBeenChanged!"
+  }
+}
+
+vars:pre-request {
+  project_to_change: 77d0394b-6d61-44a9-97a8-35caa101dc0e
+}
