@@ -1,4 +1,3 @@
-use actix_files::NamedFile;
 use actix_session::{SessionMiddleware, storage::RedisSessionStore};
 use actix_web::cookie::SameSite;
 use actix_web::{App, HttpServer, cookie::Key, middleware::Logger, web};
@@ -34,8 +33,7 @@ struct AppConfig {
     ),
     components(schemas(
         controller::auth::LoginRequest,
-        controller::auth::LoginResponse,
-        controller::auth::LogoutResponse,
+        error::MessageResponse,
     )),
     tags(
         (name = "auth", description = "Authentication endpoints"),

@@ -1,6 +1,8 @@
-use actix_web::{HttpResponse, ResponseError, cookie::time::error, http::StatusCode};
+use actix_web::{HttpResponse, ResponseError, http::StatusCode};
 use sea_orm::TransactionError;
+use serde::Serialize;
 use thiserror::Error;
+use utoipa::ToSchema;
 
 #[derive(Error, Debug)]
 pub enum ApiError {
@@ -47,5 +49,20 @@ impl From<TransactionError<sea_orm::DbErr>> for ApiError {
             TransactionError::Connection(e) => e,
             TransactionError::Transaction(e) => e,
         })
+    }
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct MessageResponse {
+    /// Response message
+    pub message: String,
+}
+
+impl MessageResponse {
+    /// Create a new message response
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
     }
 }
