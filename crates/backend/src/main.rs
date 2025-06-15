@@ -24,8 +24,8 @@ struct AppConfig {
 #[openapi(
     info(
         title = "PGG API",
-        description = "API for the PGG (Paket Verfolgungs Programm) application",
-        version = "1.0.0",
+        description = "API for the PGG (Peer Group Grading) application",
+        version = "0.0.1-rc1",
     ),
     paths(
         controller::auth::login,
