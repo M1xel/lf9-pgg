@@ -54,6 +54,7 @@ impl From<TransactionError<sea_orm::DbErr>> for ApiError {
 
 #[derive(Serialize, ToSchema)]
 pub struct MessageResponse {
+    /// Response message
     pub message: String,
 }
 
@@ -64,4 +65,12 @@ impl MessageResponse {
             message: message.into(),
         }
     }
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct ApiErrorResponse {
+    /// Error message
+    pub error: String,
+    /// HTTP status code
+    pub status: u16,
 }

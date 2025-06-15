@@ -8,11 +8,13 @@ use sea_orm::{ActiveModelTrait, DeleteResult, EntityTrait};
 use serde::Deserialize;
 use uuid::Uuid;
 use validator::Validate;
+use utoipa::ToSchema;
 
-#[derive(Deserialize, Validate)]
+#[derive(Deserialize, Validate, ToSchema)]
 pub struct CreateProject {
     #[validate(length(min = 3))]
-    name: String,
+    /// Project name (minimum 3 characters)
+    pub name: String,
 }
 
 impl Database {

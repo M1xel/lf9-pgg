@@ -1,11 +1,11 @@
 use actix_web::web::{self, ServiceConfig};
 
 pub mod auth; // TODO: Refactor to use re-exports instead of making module public
-mod class;
-mod group;
-mod project;
-mod template;
-mod user;
+pub mod class;
+pub mod group;
+pub mod project;
+pub mod template;
+pub mod user;
 
 pub fn register_controllers(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/project").configure(project::setup))

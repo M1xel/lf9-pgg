@@ -15,6 +15,17 @@ pub fn setup(cfg: &mut actix_web::web::ServiceConfig) {
         .service(delete_project);
 }
 
+#[utoipa::path(
+    get,
+    path = "/api/v1/project",
+    tag = "projects",
+    summary = "Get all projects",
+    description = "Retrieve a list of all projects",
+    responses(
+        (status = 200, description = "List of projects retrieved successfully", body = Vec<entity::project::Model>),
+        (status = 500, description = "Internal server error", body = String)
+    )
+)]
 #[get("")]
 async fn get_projects(
     db: web::Data<Database>,
@@ -24,6 +35,21 @@ async fn get_projects(
     Ok(web::Json(projects))
 }
 
+#[utoipa::path(
+    get,
+    path = "/api/v1/project/{id}",
+    tag = "projects",
+    summary = "Get project by ID",
+    description = "Retrieve a specific project by its ID",
+    params(
+        ("id" = String, Path, description = "Project ID")
+    ),
+    responses(
+        (status = 200, description = "Project retrieved successfully", body = entity::project::Model),
+        (status = 404, description = "Project not found", body = String),
+        (status = 500, description = "Internal server error", body = String)
+    )
+)]
 #[get("/{id}")]
 async fn get_project(
     db: web::Data<Database>,
@@ -36,6 +62,19 @@ async fn get_project(
     Ok(web::Json(project.unwrap()))
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/project",
+    tag = "projects",
+    summary = "Create a new project",
+    description = "Create a new project with the provided details",
+    request_body = CreateProject,
+    responses(
+        (status = 200, description = "Project created successfully", body = entity::project::Model),
+        (status = 400, description = "Invalid request data or validation error", body = String),
+        (status = 500, description = "Internal server error", body = String)
+    )
+)]
 #[post("")]
 async fn create_project(
     db: web::Data<Database>,
@@ -47,6 +86,23 @@ async fn create_project(
     Ok(web::Json(result))
 }
 
+#[utoipa::path(
+    put,
+    path = "/api/v1/project/{id}",
+    tag = "projects",
+    summary = "Update project",
+    description = "Update an existing project by its ID",
+    params(
+        ("id" = String, Path, description = "Project ID to update")
+    ),
+    request_body = CreateProject,
+    responses(
+        (status = 200, description = "Project updated successfully", body = entity::project::Model),
+        (status = 400, description = "Invalid request data or validation error", body = String),
+        (status = 404, description = "Project not found", body = String),
+        (status = 500, description = "Internal server error", body = String)
+    )
+)]
 #[put("/{id}")]
 async fn update_project(
     db: web::Data<Database>,
@@ -60,6 +116,21 @@ async fn update_project(
     Ok(web::Json(updated_project))
 }
 
+#[utoipa::path(
+    delete,
+    path = "/api/v1/project/{id}",
+    tag = "projects",
+    summary = "Delete project",
+    description = "Delete a project by its ID",
+    params(
+        ("id" = String, Path, description = "Project ID to delete")
+    ),
+    responses(
+        (status = 200, description = "Project deleted successfully", body = String),
+        (status = 404, description = "Project not found", body = String),
+        (status = 500, description = "Internal server error", body = String)
+    )
+)]
 #[delete("/{id}")]
 async fn delete_project(
     db: web::Data<Database>,
