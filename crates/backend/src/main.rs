@@ -120,11 +120,10 @@ async fn connect_to_redis_database() -> RedisSessionStore {
         .map(|x| x.parse::<u16>().expect("REDIS_PORT is not a valid port"))
         .unwrap_or(6379);
     let redis_connection_string = format!("redis://{}:{}", redis_host, redis_port);
-    let store = RedisSessionStore::new(redis_connection_string)
-        .await
-        .unwrap();
 
-    store
+    RedisSessionStore::new(redis_connection_string)
+        .await
+        .unwrap()
 }
 
 fn build_database_url() -> String {

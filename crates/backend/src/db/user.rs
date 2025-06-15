@@ -94,7 +94,10 @@ impl Database {
         let password_hash = PasswordHash::new(&local_auth.hash)
             .map_err(|err| ApiError::Argon2Error(err.to_string()))?;
 
-        if let Err(_) = argon2.verify_password(password.as_bytes(), &password_hash) {
+        if argon2
+            .verify_password(password.as_bytes(), &password_hash)
+            .is_err()
+        {
             return Err(ApiError::Unauthorized);
         }
 

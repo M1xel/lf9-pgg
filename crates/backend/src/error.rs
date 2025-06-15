@@ -34,7 +34,7 @@ impl ResponseError for ApiError {
             ApiError::ValidationError(..) => StatusCode::BAD_REQUEST,
             ApiError::Argon2Error(..) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::SessionInsertError(..) => StatusCode::INTERNAL_SERVER_ERROR,
-            ApiError::AlreadyLoggedIn => StatusCode::BAD_REQUEST,
+            ApiError::AlreadyLoggedIn => StatusCode::CONFLICT,
         }
     }
 
