@@ -4,22 +4,53 @@ use actix_web::{
     web::{self, ServiceConfig},
 };
 use log::debug;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::{Database, error::ApiError};
 
-#[derive(Deserialize)]
-struct LoginRequest {
-    username: String,
-    password: String,
+#[derive(Deserialize, ToSchema)]
+pub struct LoginRequest {
+    /// Username for authentication
+    pub username: String,
+    /// Password for authentication
+    pub password: String,
 }
+
+#[derive(Serialize, ToSchema)]
+pub struct LoginResponse {
+    /// Success message
+    pub message: String,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct LogoutResponse {
+    /// Logout confirmation message
+    pub message: String,
+}
+
+// TODO: Implement generic ApiResponse<T> type to reduce boilerplate
 
 pub fn setup(cfg: &mut ServiceConfig) {
     cfg.service(login).service(logout);
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/login",
+    tag = "auth",
+    summary = "User login",
+    description = "Authenticate a user with username and password",
+    request_body = LoginRequest,
+    responses(
+        (status = 200, description = "Login successful", body = LoginResponse),
+        (status = 400, description = "Invalid credentials"),
+        (status = 409, description = "User already logged in"),
+        (status = 500, description = "Internal server error")
+    )
+)]
 #[post("/login")]
-async fn login(
+pub async fn login(
     db: web::Data<Database>,
     login_request: web::Json<LoginRequest>,
     session: Session,
@@ -36,14 +67,29 @@ async fn login(
 
     session.insert("user", user_id)?;
 
-    Ok(HttpResponse::Ok())
+    Ok(HttpResponse::Ok().json(LoginResponse {
+        message: "Login successful".to_string(),
+    }))
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/logout",
+    tag = "auth",
+    summary = "User logout",
+    description = "Log out the currently authenticated user and clear session",
+    responses(
+        (status = 200, description = "Logout successful", body = LogoutResponse),
+        (status = 500, description = "Internal server error")
+    )
+)]
 #[post("/logout")]
-async fn logout(session: Session, request: HttpRequest) -> Result<impl Responder, ApiError> {
+pub async fn logout(session: Session, request: HttpRequest) -> Result<impl Responder, ApiError> {
     debug!("request cookies: {:?}", request.cookies());
     debug!("Session entries: {:?}", session.entries());
     session.purge();
     debug!("Session entries after purge: {:?}", session.entries());
-    Ok(HttpResponse::Ok().body("Logged out successfully"))
+    Ok(HttpResponse::Ok().json(LogoutResponse {
+        message: "Logged out successfully".to_string(),
+    }))
 }

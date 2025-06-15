@@ -27,6 +27,10 @@ sea-orm = { version = "1.1", features = [
 ] }
 uuid = "1"
 
+utoipa = { version = "*", features = ["actix_extras", "chrono", "uuid"] }
+# utoipa-actix-web = "*" # TODO: Test this for better actix-web integration
+utoipa-swagger-ui = { version = "*", features = ["actix-web"] }
+
 dotenvy = "0.15"
 
 [dev-dependencies]

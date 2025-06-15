@@ -1,9 +1,10 @@
 use actix_files::NamedFile;
-use actix_session::Session;
 use actix_session::{SessionMiddleware, storage::RedisSessionStore};
 use actix_web::cookie::SameSite;
-use actix_web::{App, HttpResponse, HttpServer, cookie::Key, middleware::Logger, web};
+use actix_web::{App, HttpServer, cookie::Key, middleware::Logger, web};
 use log::debug;
+use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
 
 mod controller;
 mod db;
@@ -19,6 +20,31 @@ use migration::MigratorTrait;
 struct AppConfig {
     ldap_auth: bool,
 }
+
+#[derive(OpenApi)]
+#[openapi(
+    info(
+        title = "PGG API",
+        description = "API for the PGG (Paket Verfolgungs Programm) application",
+        version = "1.0.0",
+    ),
+    paths(
+        controller::auth::login,
+        controller::auth::logout,
+    ),
+    components(schemas(
+        controller::auth::LoginRequest,
+        controller::auth::LoginResponse,
+        controller::auth::LogoutResponse,
+    )),
+    tags(
+        (name = "auth", description = "Authentication endpoints"),
+        (name = "users", description = "User management endpoints"),
+        (name = "projects", description = "Project management endpoints"),
+        (name = "groups", description = "Group management endpoints"),
+    )
+)]
+struct ApiDoc;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -59,7 +85,11 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(app_config.clone()))
             .wrap(Logger::default())
             .wrap(session_middleware)
-            .service(web::scope("/api/v1").configure(controller::register_controllers));
+            .service(web::scope("/api/v1").configure(controller::register_controllers))
+            .service(
+                SwaggerUi::new("/swagger-ui/{_:.*}")
+                    .url("/api-docs/openapi.json", ApiDoc::openapi()),
+            );
 
         #[cfg(feature = "serve")]
         let app = {
