@@ -67,10 +67,3 @@ impl MessageResponse {
     }
 }
 
-#[derive(Serialize, ToSchema)]
-pub struct ApiErrorResponse {
-    /// Error message
-    pub error: String,
-    /// HTTP status code
-    pub status: u16,
-}

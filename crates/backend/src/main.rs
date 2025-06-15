@@ -2,12 +2,12 @@ use actix_session::{SessionMiddleware, storage::RedisSessionStore};
 use actix_web::cookie::SameSite;
 use actix_web::{App, HttpServer, cookie::Key, middleware::Logger, web};
 use log::debug;
-use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
 mod controller;
 mod db;
 mod error;
+mod utoipa;
 
 pub use db::Database;
 pub use db::entity;
@@ -19,62 +19,6 @@ use migration::MigratorTrait;
 struct AppConfig {
     ldap_auth: bool,
 }
-
-#[derive(OpenApi)]
-#[openapi(
-    info(
-        title = "PGG API",
-        description = "API for the PGG (Peer Group Grading) application",
-        version = "0.0.1-rc1",
-    ),
-    paths(
-        controller::auth::login,
-        controller::auth::logout,
-        controller::project::get_projects,
-        controller::project::get_project,
-        controller::project::create_project,
-        controller::project::update_project,
-        controller::project::delete_project,
-        controller::user::get_users,
-        controller::user::get_user,
-        controller::user::create_user,
-        controller::user::update_user,
-        controller::user::delete_user,
-        controller::group::get_groups,
-        controller::group::get_groups_for_project,
-        controller::group::create_group,
-        controller::group::update_group,
-        controller::group::delete_group,
-        controller::class::get_classes,
-        controller::class::get_class,
-        controller::class::create_class,
-        controller::class::update_class,
-        controller::class::delete_class,
-        controller::template::get_templates,
-        controller::template::get_template,
-        controller::template::create_template,
-        controller::template::update_template,
-        controller::template::delete_template,
-    ),
-    components(schemas(
-        controller::auth::LoginRequest,
-        error::MessageResponse,
-        error::ApiErrorResponse,
-        db::project::CreateProject,
-        controller::user::CreateUser,
-        entity::project::Model,
-        entity::user::Model,
-    )),
-    tags(
-        (name = "auth", description = "Authentication endpoints"),
-        (name = "users", description = "User management endpoints"),
-        (name = "projects", description = "Project management endpoints"),
-        (name = "groups", description = "Group management endpoints (Not Implemented)"),
-        (name = "classes", description = "Class management endpoints (Not Implemented)"),
-        (name = "templates", description = "Template management endpoints (Not Implemented)"),
-    )
-)]
-struct ApiDoc;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -118,7 +62,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::scope("/api/v1").configure(controller::register_controllers))
             .service(
                 SwaggerUi::new("/swagger-ui/{_:.*}")
-                    .url("/api-docs/openapi.json", ApiDoc::openapi()),
+                    .url("/api-docs/openapi.json", crate::utoipa::ApiDoc::openapi_spec()),
             );
 
         #[cfg(feature = "serve")]
