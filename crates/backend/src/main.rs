@@ -90,7 +90,7 @@ fn get_env_var(name: &str) -> Result<String, std::env::VarError> {
     std::env::var(name)
 }
 
-async fn connect_to_redis_database() -> RedisSessionStore {
+pub async fn connect_to_redis_database() -> RedisSessionStore {
     let redis_host = get_env_var("REDIS_HOST").expect("REDIS_HOST must be set in .env");
     let redis_port = get_env_var("REDIS_PORT")
         .map(|x| x.parse::<u16>().expect("REDIS_PORT is not a valid port"))
@@ -102,7 +102,7 @@ async fn connect_to_redis_database() -> RedisSessionStore {
         .unwrap()
 }
 
-fn build_database_url() -> String {
+pub fn build_database_url() -> String {
     let db_user = get_env_var("DB_USER").unwrap_or_else(|_| "pgg".to_owned());
     let db_name = get_env_var("DB_NAME").unwrap_or_else(|_| "pgg".to_owned());
     let db_password = get_env_var("DB_PASSWORD").unwrap_or_else(|_| "pgg".to_owned());
