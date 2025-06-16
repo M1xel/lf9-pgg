@@ -37,6 +37,10 @@ dotenvy = "0.15"
 temp-env = "*"
 serial_test = "*"
 
+# Testcontainers
+testcontainers = { version = "*" }
+testcontainers-modules = { version = "*", features = ["redis", "postgres"] }
+
 [features]
 serve = []
 
