@@ -1,8 +1,7 @@
-use actix_web::{App, http::header, test, web};
-use backend::controller;
+use actix_web::{http::header, test};
 use serde::{Deserialize, Serialize};
 
-use crate::common::test_helpers::get_database;
+use crate::create_test_app;
 
 #[cfg(test)]
 mod tests {
@@ -20,14 +19,7 @@ mod tests {
 
     #[actix_web::test]
     async fn test_login() {
-        let db = get_database().await;
-
-        let app = test::init_service(
-            App::new()
-                .app_data(web::Data::new(db.clone()))
-                .service(web::scope("/api/v1").configure(controller::register_controllers)),
-        )
-        .await;
+        let app = create_test_app!();
 
         let req = test::TestRequest::post()
             .uri("/api/v1/user")

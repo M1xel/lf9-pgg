@@ -1,10 +1,7 @@
 use backend::{Database, build_database_url};
 use log::{debug, info};
 use migration::{Migrator, MigratorTrait};
-use testcontainers::{
-    ContainerAsync, ImageExt, core::logs::consumer::logging_consumer::LoggingConsumer,
-    runners::AsyncRunner,
-};
+use testcontainers::{ContainerAsync, ImageExt, runners::AsyncRunner};
 use testcontainers_modules::{postgres::Postgres, redis::Redis};
 
 pub mod test_helpers;

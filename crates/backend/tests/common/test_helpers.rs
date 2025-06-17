@@ -29,3 +29,20 @@ pub async fn get_database() -> &'static Database {
 
     &state.database
 }
+
+#[macro_export]
+macro_rules! create_test_app {
+    () => {{
+        let db = $crate::common::test_helpers::get_database().await;
+
+        actix_web::test::init_service(
+            actix_web::App::new()
+                .app_data(actix_web::web::Data::new(db.clone()))
+                .service(
+                    actix_web::web::scope("/api/v1")
+                        .configure(backend::controller::register_controllers),
+                ),
+        )
+        .await
+    }};
+}
