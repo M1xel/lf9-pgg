@@ -20,10 +20,21 @@ mod tests {
             )
             .await;
 
-            let req = test::TestRequest::get().uri("/api/v1/user").to_request();
-            let resp = test::call_service(&app, req).await;
+            let resp = test::TestRequest::get()
+                .uri("/api/v1/ok")
+                .send_request(&app)
+                .await;
 
-            assert!(resp.status().is_success() || resp.status().is_client_error());
+            let resp_status = resp.status();
+
+            let resp_body = test::read_body(resp).await;
+            let resp_body_str = String::from_utf8_lossy(&resp_body);
+            assert!(
+                resp_body_str.contains("available"),
+                "Expected 'available' in response body"
+            );
+
+            assert!(resp_status.is_success(), "Expected success response");
         })
         .await;
     }

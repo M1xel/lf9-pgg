@@ -13,5 +13,8 @@ pub fn register_controllers(cfg: &mut ServiceConfig) {
         .service(web::scope("/user").configure(user::setup))
         .service(web::scope("/class").configure(class::setup))
         .service(web::scope("/template").configure(template::setup))
-        .service(web::scope("/auth").configure(auth::setup));
+        .service(web::scope("/auth").configure(auth::setup))
+        .service(
+            web::resource("ok").to(|| async { actix_web::HttpResponse::Ok().body("available") }),
+        );
 }
