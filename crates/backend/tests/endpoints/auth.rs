@@ -6,6 +6,7 @@ use crate::common::test_helpers::get_database;
 
 #[cfg(test)]
 mod tests {
+    use log::debug;
     use serde_json::json;
 
     use super::*;
@@ -46,8 +47,8 @@ mod tests {
         let body = test::read_body(req).await;
         let body_str = String::from_utf8_lossy(&body);
 
-        println!("Response status: {}", status);
-        println!("Response body: {}", body_str);
+        debug!("Response status: {}", status);
+        debug!("Response body: {}", body_str);
 
         assert!(status.is_success() || status.is_client_error());
     }
