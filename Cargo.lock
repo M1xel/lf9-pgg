@@ -632,6 +632,7 @@ dependencies = [
  "argon2",
  "dotenvy",
  "env_logger",
+ "lazy_static",
  "log",
  "migration",
  "sea-orm",
