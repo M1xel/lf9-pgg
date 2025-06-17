@@ -15,7 +15,7 @@ pub fn setup(cfg: &mut actix_web::web::ServiceConfig) {
     summary = "Get all groups (Not Implemented)",
     description = "Retrieve a list of all groups - currently not implemented",
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[get("")]
@@ -33,7 +33,7 @@ async fn get_groups() -> impl Responder {
         ("project" = String, Path, description = "Project ID")
     ),
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[get("/{project}")]
@@ -48,7 +48,7 @@ async fn get_groups_for_project() -> impl Responder {
     summary = "Create group (Not Implemented)",
     description = "Create a new group - currently not implemented",
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[post("")]
@@ -63,7 +63,7 @@ async fn create_group() -> impl Responder {
     summary = "Update group (Not Implemented)",
     description = "Update an existing group - currently not implemented",
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[put("")]
@@ -81,7 +81,7 @@ async fn update_group() -> impl Responder {
         ("id" = String, Path, description = "Group ID to delete")
     ),
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[delete("/{id}")]

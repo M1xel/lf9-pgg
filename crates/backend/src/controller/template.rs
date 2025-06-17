@@ -15,7 +15,7 @@ pub fn setup(cfg: &mut actix_web::web::ServiceConfig) {
     summary = "Get all templates (Not Implemented)",
     description = "Retrieve a list of all templates - currently not implemented",
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[get("")]
@@ -33,7 +33,7 @@ async fn get_templates() -> impl Responder {
         ("id" = String, Path, description = "Template ID")
     ),
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[get("/{id}")]
@@ -48,7 +48,7 @@ async fn get_template() -> impl Responder {
     summary = "Create template (Not Implemented)",
     description = "Create a new template - currently not implemented",
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[post("")]
@@ -63,7 +63,7 @@ async fn create_template() -> impl Responder {
     summary = "Update template (Not Implemented)",
     description = "Update an existing template - currently not implemented",
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[put("")]
@@ -81,7 +81,7 @@ async fn update_template() -> impl Responder {
         ("id" = String, Path, description = "Template ID to delete")
     ),
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[delete("/{id}")]

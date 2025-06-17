@@ -1,8 +1,8 @@
 use crate::{Database, entity, error::ApiError};
 use actix_web::{Responder, delete, get, post, put, web};
 use serde::Deserialize;
-use validator::Validate;
 use utoipa::ToSchema;
+use validator::Validate;
 
 pub fn setup(cfg: &mut actix_web::web::ServiceConfig) {
     cfg.service(get_users)
@@ -30,8 +30,8 @@ pub struct CreateUser {
     summary = "Get all users",
     description = "Retrieve a list of all users",
     responses(
-        (status = 200, description = "List of users retrieved successfully", body = Vec<entity::user::Model>),
-        (status = 500, description = "Internal server error", body = String)
+        (status = 200, description = "List of users retrieved successfully", body = Vec<entity::user::Model>, content_type = "application/json"),
+        (status = 500, description = "Internal server error", body = String, content_type = "application/json")
     )
 )]
 #[get("")]
@@ -52,9 +52,9 @@ async fn get_users(
         ("id" = String, Path, description = "User ID")
     ),
     responses(
-        (status = 200, description = "User retrieved successfully", body = entity::user::Model),
-        (status = 404, description = "User not found", body = String),
-        (status = 500, description = "Internal server error", body = String)
+        (status = 200, description = "User retrieved successfully", body = entity::user::Model, content_type = "application/json"),
+        (status = 404, description = "User not found", body = String, content_type = "application/json"),
+        (status = 500, description = "Internal server error", body = String, content_type = "application/json")
     )
 )]
 #[get("/{id}")]
@@ -75,9 +75,9 @@ async fn get_user(
     description = "Create a new user with username, name, and password",
     request_body = CreateUser,
     responses(
-        (status = 200, description = "User created successfully", body = entity::user::Model),
-        (status = 400, description = "Invalid request data or validation error", body = String),
-        (status = 500, description = "Internal server error", body = String)
+        (status = 200, description = "User created successfully", body = entity::user::Model, content_type = "application/json"),
+        (status = 400, description = "Invalid request data or validation error", body = String, content_type = "application/json"),
+        (status = 500, description = "Internal server error", body = String, content_type = "application/json")
     )
 )]
 #[post("")]
@@ -100,7 +100,7 @@ async fn create_user(
     summary = "Update user (Not Implemented)",
     description = "Update user information - currently not implemented",
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[put("")]
@@ -118,9 +118,9 @@ async fn update_user() -> impl Responder {
         ("id" = String, Path, description = "User ID to delete")
     ),
     responses(
-        (status = 200, description = "User deleted successfully", body = String),
-        (status = 404, description = "User not found", body = String),
-        (status = 500, description = "Internal server error", body = String)
+        (status = 200, description = "User deleted successfully", body = String, content_type = "application/json", example = "User 123e4567-e89b-12d3-a456-426614174000 deleted"),
+        (status = 404, description = "User not found", body = String, content_type = "application/json"),
+        (status = 500, description = "Internal server error", body = String, content_type = "application/json")
     )
 )]
 #[delete("/{id}")]

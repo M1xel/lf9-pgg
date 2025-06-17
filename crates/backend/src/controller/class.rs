@@ -15,7 +15,7 @@ pub fn setup(cfg: &mut actix_web::web::ServiceConfig) {
     summary = "Get all classes (Not Implemented)",
     description = "Retrieve a list of all classes - currently not implemented",
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[get("")]
@@ -33,7 +33,7 @@ async fn get_classes() -> impl Responder {
         ("id" = String, Path, description = "Class ID")
     ),
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[get("/{id}")]
@@ -48,7 +48,7 @@ async fn get_class() -> impl Responder {
     summary = "Create class (Not Implemented)",
     description = "Create a new class - currently not implemented",
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[post("")]
@@ -63,7 +63,7 @@ async fn create_class() -> impl Responder {
     summary = "Update class (Not Implemented)",
     description = "Update an existing class - currently not implemented",
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[put("")]
@@ -81,7 +81,7 @@ async fn update_class() -> impl Responder {
         ("id" = String, Path, description = "Class ID to delete")
     ),
     responses(
-        (status = 501, description = "Not implemented", body = String)
+        (status = 501, description = "Not implemented", body = String, content_type = "application/json")
     )
 )]
 #[delete("/{id}")]

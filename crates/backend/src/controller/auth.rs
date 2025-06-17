@@ -32,7 +32,7 @@ pub fn setup(cfg: &mut ServiceConfig) {
     description = "Authenticate a user with username and password",
     request_body = LoginRequest,
     responses(
-        (status = 200, description = "Login successful", body = MessageResponse),
+        (status = 200, description = "Login successful", body = MessageResponse, content_type = "application/json"),
         (status = 400, description = "Invalid credentials"),
         (status = 409, description = "User already logged in"),
         (status = 500, description = "Internal server error")
@@ -66,7 +66,7 @@ pub async fn login(
     summary = "User logout",
     description = "Log out the currently authenticated user and clear session",
     responses(
-        (status = 200, description = "Logout successful", body = MessageResponse),
+        (status = 200, description = "Logout successful", body = MessageResponse, content_type = "application/json"),
         (status = 500, description = "Internal server error")
     )
 )]

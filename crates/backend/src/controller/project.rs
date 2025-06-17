@@ -22,8 +22,8 @@ pub fn setup(cfg: &mut actix_web::web::ServiceConfig) {
     summary = "Get all projects",
     description = "Retrieve a list of all projects",
     responses(
-        (status = 200, description = "List of projects retrieved successfully", body = Vec<entity::project::Model>),
-        (status = 500, description = "Internal server error", body = String)
+        (status = 200, description = "List of projects retrieved successfully", body = Vec<entity::project::Model>, content_type = "application/json"),
+        (status = 500, description = "Internal server error", body = String, content_type = "application/json")
     )
 )]
 #[get("")]
@@ -45,9 +45,9 @@ async fn get_projects(
         ("id" = String, Path, description = "Project ID")
     ),
     responses(
-        (status = 200, description = "Project retrieved successfully", body = entity::project::Model),
-        (status = 404, description = "Project not found", body = String),
-        (status = 500, description = "Internal server error", body = String)
+        (status = 200, description = "Project retrieved successfully", body = entity::project::Model, content_type = "application/json"),
+        (status = 404, description = "Project not found", body = String, content_type = "application/json"),
+        (status = 500, description = "Internal server error", body = String, content_type = "application/json")
     )
 )]
 #[get("/{id}")]
@@ -70,9 +70,9 @@ async fn get_project(
     description = "Create a new project with the provided details",
     request_body = CreateProject,
     responses(
-        (status = 200, description = "Project created successfully", body = entity::project::Model),
-        (status = 400, description = "Invalid request data or validation error", body = String),
-        (status = 500, description = "Internal server error", body = String)
+        (status = 200, description = "Project created successfully", body = entity::project::Model, content_type = "application/json"),
+        (status = 400, description = "Invalid request data or validation error", body = String, content_type = "application/json"),
+        (status = 500, description = "Internal server error", body = String, content_type = "application/json")
     )
 )]
 #[post("")]
@@ -97,10 +97,10 @@ async fn create_project(
     ),
     request_body = CreateProject,
     responses(
-        (status = 200, description = "Project updated successfully", body = entity::project::Model),
-        (status = 400, description = "Invalid request data or validation error", body = String),
-        (status = 404, description = "Project not found", body = String),
-        (status = 500, description = "Internal server error", body = String)
+        (status = 200, description = "Project updated successfully", body = entity::project::Model, content_type = "application/json"),
+        (status = 400, description = "Invalid request data or validation error", body = String, content_type = "application/json"),
+        (status = 404, description = "Project not found", body = String, content_type = "application/json"),
+        (status = 500, description = "Internal server error", body = String, content_type = "application/json")
     )
 )]
 #[put("/{id}")]
@@ -126,9 +126,9 @@ async fn update_project(
         ("id" = String, Path, description = "Project ID to delete")
     ),
     responses(
-        (status = 200, description = "Project deleted successfully", body = String),
-        (status = 404, description = "Project not found", body = String),
-        (status = 500, description = "Internal server error", body = String)
+        (status = 200, description = "Project deleted successfully", body = String, content_type = "application/json"),
+        (status = 404, description = "Project not found", body = String, content_type = "application/json"),
+        (status = 500, description = "Internal server error", body = String, content_type = "application/json")
     )
 )]
 #[delete("/{id}")]
