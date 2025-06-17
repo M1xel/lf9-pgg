@@ -1,7 +1,5 @@
 use backend::Database;
 use lazy_static::lazy_static;
-use sea_orm::{DatabaseTransaction, TransactionTrait};
-use std::future::Future;
 use testcontainers::ContainerAsync;
 use testcontainers_modules::{postgres::Postgres, redis::Redis};
 
@@ -30,18 +28,4 @@ pub async fn get_database() -> &'static Database {
         .await;
 
     &state.database
-}
-
-pub async fn with_transaction<F, Fut, R>(test: F) -> R
-where
-    F: FnOnce(DatabaseTransaction) -> Fut,
-    Fut: Future<Output = R>,
-{
-    let db = get_database().await;
-    let tx = db
-        .connection()
-        .begin()
-        .await
-        .expect("Failed to start transaction");
-    test(tx).await
 }

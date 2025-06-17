@@ -6,10 +6,10 @@ mod tests {
     use actix_web::{App, test, web};
     use backend::controller;
 
-    use crate::common::test_helpers::{get_database, with_transaction};
+    use crate::common::test_helpers::get_database;
 
     #[actix_web::test]
-    async fn test_auth_with_transaction() {
+    async fn test_ok() {
         let db = get_database().await;
 
         let app = test::init_service(

@@ -2,7 +2,7 @@ use actix_web::{App, http::header, test, web};
 use backend::controller;
 use serde::{Deserialize, Serialize};
 
-use crate::common::test_helpers::{get_database, with_transaction};
+use crate::common::test_helpers::get_database;
 
 #[cfg(test)]
 mod tests {
