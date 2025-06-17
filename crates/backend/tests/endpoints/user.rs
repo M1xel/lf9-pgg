@@ -41,5 +41,24 @@ mod tests {
         assert!(user.username == "testuser");
 
         assert!(status.is_success());
+
+        let resp_del = test::TestRequest::delete()
+            .uri(&format!("/api/v1/user/{}", user.id))
+            .send_request(&app)
+            .await;
+        let status_del = resp_del.status();
+
+        let delete_message: String = test::read_body_json(resp_del).await;
+        assert_eq!(delete_message, format!("User {} deleted", user.id));
+
+        assert!(
+            status_del.is_success(),
+            "Failed to delete user with status: {:?}",
+            status_del
+        );
+
+        // Debugging output
+        dbg!(user);
+        dbg!(delete_message);
     }
 }
