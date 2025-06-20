@@ -6,14 +6,14 @@ use crate::entity::project;
 use sea_orm::ActiveValue::{NotSet, Set, Unchanged};
 use sea_orm::{ActiveModelTrait, DeleteResult, EntityTrait};
 use serde::Deserialize;
+use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
-use utoipa::ToSchema;
 
 #[derive(Deserialize, Validate, ToSchema)]
 pub struct CreateProject {
-    #[validate(length(min = 3))]
-    /// Project name (minimum 3 characters)
+    #[validate(length(min = 3, max = 255))]
+    /// Project name (minimum 3 characters and maximum 255 characters)
     pub name: String,
 }
 
@@ -82,5 +82,55 @@ impl Database {
         }
 
         Ok(project)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[actix_web::test]
+    async fn test_validation_create_project_struct_valid() {
+        let project = CreateProject {
+            name: "Test Project".to_string(),
+        };
+        let validation_result = project.validate();
+        assert!(validation_result.is_ok());
+    }
+
+    #[actix_web::test]
+    async fn test_validation_create_project_struct_invalid_too_short() {
+        let project = CreateProject {
+            name: "TP".to_string(), // too short
+        };
+        let validation_result = project.validate();
+        assert!(validation_result.is_err());
+    }
+
+    #[actix_web::test]
+    async fn test_validation_create_project_struct_empty() {
+        let project = CreateProject {
+            name: "".to_string(), // empty string
+        };
+        let validation_result = project.validate();
+        assert!(validation_result.is_err());
+    }
+
+    #[actix_web::test]
+    async fn test_validation_create_project_struct_min_length() {
+        let project = CreateProject {
+            name: "abc".to_string(), // exactly at min length
+        };
+        let validation_result = project.validate();
+        assert!(validation_result.is_ok());
+    }
+
+    #[actix_web::test]
+    async fn test_validation_create_project_struct_long_name() {
+        // 256 characters long should be invalid because of max length
+        let long_name = "a".repeat(256);
+        let project = CreateProject { name: long_name };
+        let validation_result = project.validate();
+        assert!(validation_result.is_err());
     }
 }

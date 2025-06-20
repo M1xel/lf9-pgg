@@ -13,13 +13,14 @@ pub fn setup(cfg: &mut actix_web::web::ServiceConfig) {
 
 #[derive(Deserialize, Validate, ToSchema)]
 pub struct CreateUser {
-    #[validate(length(min = 4))]
-    /// Username (minimum 4 characters)
+    #[validate(length(min = 4, max = 255))]
+    /// Username (minimum 4 characters, maximum 255 characters)
     username: String,
-    /// Full name of the user
+    #[validate(length(min = 3))]
+    /// Full name of the user (minimum 3 characters)
     name: String,
-    #[validate(length(min = 8))]
-    /// Password (minimum 8 characters)
+    #[validate(length(min = 8, max = 255))]
+    /// Password (minimum 8 characters, maximum 255 characters)
     password: String,
 }
 
@@ -131,4 +132,75 @@ async fn delete_user(
     let id = id.into_inner();
     db.delete_user(id).await?;
     Ok(web::Json(format!("User {} deleted", id)))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[actix_web::test]
+    async fn test_validation_create_user_struct_valid() {
+        let user = CreateUser {
+            username: "testuser".to_string(),
+            name: "Test User".to_string(),
+            password: "password123".to_string(),
+        };
+        let validation_result = user.validate();
+        assert!(validation_result.is_ok());
+    }
+
+    #[actix_web::test]
+    async fn test_validation_create_user_struct_username_invalid() {
+        let user = CreateUser {
+            username: "usr".to_string(), // too short
+            name: "Test User".to_string(),
+            password: "password".to_string(),
+        };
+        let validation_result = user.validate();
+        assert!(validation_result.is_err());
+    }
+
+    #[actix_web::test]
+    async fn test_validation_create_user_struct_username_too_long() {
+        let user = CreateUser {
+            username: "a".repeat(256), // too long
+            name: "Test User".to_string(),
+            password: "password123".to_string(),
+        };
+        let validation_result = user.validate();
+        assert!(validation_result.is_err());
+    }
+
+    #[actix_web::test]
+    async fn test_validation_create_user_struct_name_invalid() {
+        let user = CreateUser {
+            username: "testuser".to_string(),
+            name: "".to_string(), // empty name
+            password: "password123".to_string(),
+        };
+        let validation_result = user.validate();
+        assert!(validation_result.is_err());
+    }
+
+    #[actix_web::test]
+    async fn test_validation_create_user_struct_password_invalid() {
+        let user = CreateUser {
+            username: "testuser".to_string(),
+            name: "Test User".to_string(),
+            password: "pass".to_string(), // too short
+        };
+        let validation_result = user.validate();
+        assert!(validation_result.is_err());
+    }
+
+    #[actix_web::test]
+    async fn test_validation_create_user_struct_password_too_long() {
+        let user = CreateUser {
+            username: "testuser".to_string(),
+            name: "Test User".to_string(),
+            password: "a".repeat(256), // too long
+        };
+        let validation_result = user.validate();
+        assert!(validation_result.is_err());
+    }
 }
