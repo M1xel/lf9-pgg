@@ -1,4 +1,4 @@
-use actix_web::{delete, get, post, put, Responder};
+use actix_web::{Responder, delete, get, post, put};
 
 pub fn setup(cfg: &mut actix_web::web::ServiceConfig) {
     cfg.service(get_classes)

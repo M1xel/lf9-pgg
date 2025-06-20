@@ -1,7 +1,7 @@
 use actix_web::{http::header, test};
 use serde::{Deserialize, Serialize};
 
-use crate::{create_test_app, common::test_helpers::UserFactory};
+use crate::{common::test_helpers::UserFactory, create_test_app};
 
 #[cfg(test)]
 mod tests {
@@ -58,7 +58,11 @@ mod tests {
             .await;
 
         let create_status = create_resp.status();
-        assert!(create_status.is_success(), "Failed to create user: {}", create_status);
+        assert!(
+            create_status.is_success(),
+            "Failed to create user: {}",
+            create_status
+        );
         let user: RespCreateUser = test::read_body_json(create_resp).await;
 
         // Delete the user
@@ -70,7 +74,11 @@ mod tests {
 
         let delete_message: String = test::read_body_json(delete_resp).await;
         assert_eq!(delete_message, format!("User {} deleted", user.id));
-        assert!(delete_status.is_success(), "Failed to delete user with status: {:?}", delete_status);
+        assert!(
+            delete_status.is_success(),
+            "Failed to delete user with status: {:?}",
+            delete_status
+        );
     }
 
     #[actix_web::test]

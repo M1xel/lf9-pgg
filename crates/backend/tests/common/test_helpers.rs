@@ -3,6 +3,7 @@ use lazy_static::lazy_static;
 use std::sync::atomic::{AtomicU64, Ordering};
 use testcontainers::ContainerAsync;
 use testcontainers_modules::{postgres::Postgres, redis::Redis};
+use uuid::Uuid;
 
 use super::setup;
 
@@ -61,21 +62,34 @@ impl UserFactory {
 
 pub struct TestContext {
     pub test_id: String,
+    pub created_users: std::sync::Arc<std::sync::Mutex<Vec<uuid::Uuid>>>,
+    pub created_projects: std::sync::Arc<std::sync::Mutex<Vec<uuid::Uuid>>>,
 }
 
 impl TestContext {
     pub fn new() -> Self {
         Self {
             test_id: get_unique_test_id(),
+            created_users: std::sync::Arc::new(std::sync::Mutex::new(Vec::new())),
+            created_projects: std::sync::Arc::new(std::sync::Mutex::new(Vec::new())),
         }
     }
 
-    pub fn create_user_data(&self, username_prefix: Option<&str>, name: Option<&str>) -> serde_json::Value {
+    pub fn create_user_data(
+        &self,
+        username_prefix: Option<&str>,
+        name: Option<&str>,
+    ) -> serde_json::Value {
         let username = username_prefix
             .map(|prefix| format!("{}_{}", prefix, self.test_id))
             .unwrap_or_else(|| format!("user_{}", self.test_id));
-        
+
         UserFactory::create_request(Some(username), name.map(String::from))
+    }
+
+    pub async fn cleanup_all(&self, db: &Database) {
+        self.cleanup_projects(db).await;
+        self.cleanup_users(db).await;
     }
 }
 
@@ -93,5 +107,19 @@ macro_rules! create_test_app {
                 ),
         )
         .await
+    }};
+}
+
+#[macro_export]
+macro_rules! with_test_context {
+    ($test_fn:expr) => {{
+        let ctx = $crate::common::test_helpers::TestContext::new();
+        let db = $crate::common::test_helpers::get_database().await;
+
+        let result = $test_fn(ctx.clone(), db).await;
+
+        ctx.cleanup_all(db).await;
+
+        result
     }};
 }

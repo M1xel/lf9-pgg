@@ -7,8 +7,8 @@ use utoipa_swagger_ui::SwaggerUi;
 mod controller;
 mod db;
 mod error;
-mod utoipa;
 mod utils;
+mod utoipa;
 
 use db::Database;
 use log::info;
@@ -61,10 +61,10 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(session_middleware)
             .service(web::scope("/api/v1").configure(controller::register_controllers))
-            .service(
-                SwaggerUi::new("/swagger-ui/{_:.*}")
-                    .url("/api-docs/openapi.json", crate::utoipa::ApiDoc::openapi_spec()),
-            );
+            .service(SwaggerUi::new("/swagger-ui/{_:.*}").url(
+                "/api-docs/openapi.json",
+                crate::utoipa::ApiDoc::openapi_spec(),
+            ));
 
         #[cfg(feature = "serve")]
         let app = {
@@ -80,7 +80,6 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
-
 
 pub async fn connect_to_redis_database() -> RedisSessionStore {
     let redis_host = get_env_var("REDIS_HOST").expect("REDIS_HOST must be set in .env");
