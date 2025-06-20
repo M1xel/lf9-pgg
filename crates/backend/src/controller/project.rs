@@ -1,10 +1,10 @@
-use actix_web::{delete, get, post, put, web, Result};
+use actix_web::{Result, delete, get, post, put, web};
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::db::project::CreateProject;
 use crate::db::Database;
-use crate::entity;
+use crate::db::entity;
+use crate::db::project::CreateProject;
 use crate::error::ApiError;
 
 pub fn setup(cfg: &mut actix_web::web::ServiceConfig) {

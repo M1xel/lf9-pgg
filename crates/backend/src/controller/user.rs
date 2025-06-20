@@ -1,4 +1,4 @@
-use crate::{Database, entity, error::ApiError};
+use crate::{Database, db::entity, error::ApiError};
 use actix_web::{Responder, delete, get, post, put, web};
 use serde::Deserialize;
 use utoipa::ToSchema;
@@ -15,6 +15,7 @@ pub fn setup(cfg: &mut actix_web::web::ServiceConfig) {
 pub struct CreateUser {
     #[validate(length(min = 4, max = 255))]
     /// Username (minimum 4 characters, maximum 255 characters)
+    /// TODO: Don't allow spaces, only alphanumeric characters and underscores
     username: String,
     #[validate(length(min = 3))]
     /// Full name of the user (minimum 3 characters)
@@ -78,10 +79,12 @@ async fn get_user(
     responses(
         (status = 200, description = "User created successfully", body = entity::user::Model, content_type = "application/json"),
         (status = 400, description = "Invalid request data or validation error", body = String, content_type = "application/json"),
+        (status = 409, description = "User already exists", body = String, content_type = "application/json"),
         (status = 500, description = "Internal server error", body = String, content_type = "application/json")
     )
 )]
 #[post("")]
+// TODO: if a user with the same username already exists, return 409 Conflict
 async fn create_user(
     db: web::Data<Database>,
     user: web::Json<CreateUser>,

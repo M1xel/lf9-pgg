@@ -7,13 +7,14 @@ use utoipa_swagger_ui::SwaggerUi;
 mod controller;
 mod db;
 mod error;
+mod utils;
 mod utoipa;
 
-pub use db::Database;
-pub use db::entity;
+use db::Database;
 use log::info;
 use migration::Migrator;
 use migration::MigratorTrait;
+use utils::{build_database_url, get_env_var};
 
 #[derive(Clone)]
 struct AppConfig {
@@ -60,10 +61,10 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(session_middleware)
             .service(web::scope("/api/v1").configure(controller::register_controllers))
-            .service(
-                SwaggerUi::new("/swagger-ui/{_:.*}")
-                    .url("/api-docs/openapi.json", crate::utoipa::ApiDoc::openapi_spec()),
-            );
+            .service(SwaggerUi::new("/swagger-ui/{_:.*}").url(
+                "/api-docs/openapi.json",
+                crate::utoipa::ApiDoc::openapi_spec(),
+            ));
 
         #[cfg(feature = "serve")]
         let app = {
@@ -80,16 +81,6 @@ async fn main() -> std::io::Result<()> {
     .await
 }
 
-#[cfg(not(test))]
-fn get_env_var(name: &str) -> dotenvy::Result<String> {
-    dotenvy::var(name)
-}
-
-#[cfg(test)]
-fn get_env_var(name: &str) -> Result<String, std::env::VarError> {
-    std::env::var(name)
-}
-
 pub async fn connect_to_redis_database() -> RedisSessionStore {
     let redis_host = get_env_var("REDIS_HOST").expect("REDIS_HOST must be set in .env");
     let redis_port = get_env_var("REDIS_PORT")
@@ -100,24 +91,6 @@ pub async fn connect_to_redis_database() -> RedisSessionStore {
     RedisSessionStore::new(redis_connection_string)
         .await
         .unwrap()
-}
-
-pub fn build_database_url() -> String {
-    let db_user = get_env_var("DB_USER").unwrap_or_else(|_| "pgg".to_owned());
-    let db_name = get_env_var("DB_NAME").unwrap_or_else(|_| "pgg".to_owned());
-    let db_password = get_env_var("DB_PASSWORD").unwrap_or_else(|_| "pgg".to_owned());
-    let db_host = get_env_var("DB_HOST").expect("DB_HOST must be set in .env");
-    let db_port = get_env_var("DB_PORT")
-        .map(|x| x.parse::<u16>().expect("DB_PORT is not a valid port"))
-        .unwrap_or(5432);
-
-    let result = format!(
-        "postgresql://{}:{}@{}:{}/{}",
-        db_user, db_password, db_host, db_port, db_name
-    );
-
-    println!("Database URL: {}", result);
-    result
 }
 
 #[cfg(test)]

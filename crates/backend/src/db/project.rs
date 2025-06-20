@@ -2,7 +2,7 @@ use super::Database;
 use crate::error::ApiError;
 use log::debug;
 
-use crate::entity::project;
+use crate::db::entity::project;
 use sea_orm::ActiveValue::{NotSet, Set, Unchanged};
 use sea_orm::{ActiveModelTrait, DeleteResult, EntityTrait};
 use serde::Deserialize;

@@ -1,6 +1,6 @@
 use utoipa::OpenApi;
 
-use crate::{controller, db, entity, error};
+use crate::{controller, db, db::entity, error};
 
 #[derive(OpenApi)]
 #[openapi(

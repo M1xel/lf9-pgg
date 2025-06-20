@@ -1,6 +1,7 @@
 use actix_web::web::{self, ServiceConfig};
 
-pub mod auth; // TODO: Refactor to use re-exports instead of making module public
+// TODO: Refactor to use re-exports instead of making module public
+pub mod auth;
 pub mod class;
 pub mod group;
 pub mod project;
@@ -15,6 +16,6 @@ pub fn register_controllers(cfg: &mut ServiceConfig) {
         .service(web::scope("/template").configure(template::setup))
         .service(web::scope("/auth").configure(auth::setup))
         .service(
-            web::resource("ok").to(|| async { actix_web::HttpResponse::Ok().body("available") }),
+            web::resource("/ok").to(|| async { actix_web::HttpResponse::Ok().body("available") }),
         );
 }

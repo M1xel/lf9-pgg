@@ -10,7 +10,7 @@ use sea_orm::{
 };
 use uuid::Uuid;
 
-use crate::{Database, entity};
+use crate::{Database, db::entity};
 
 impl Database {
     pub async fn get_users(&self) -> Result<Vec<entity::user::Model>, ApiError> {
