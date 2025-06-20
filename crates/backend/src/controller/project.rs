@@ -4,7 +4,7 @@ use validator::Validate;
 
 use crate::db::project::CreateProject;
 use crate::db::Database;
-use crate::entity;
+use crate::db::entity;
 use crate::error::ApiError;
 
 pub fn setup(cfg: &mut actix_web::web::ServiceConfig) {

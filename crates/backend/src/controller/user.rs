@@ -1,4 +1,4 @@
-use crate::{Database, entity, error::ApiError};
+use crate::{Database, db::entity, error::ApiError};
 use actix_web::{Responder, delete, get, post, put, web};
 use serde::Deserialize;
 use utoipa::ToSchema;

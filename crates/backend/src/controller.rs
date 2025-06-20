@@ -1,6 +1,7 @@
 use actix_web::web::{self, ServiceConfig};
 
-pub mod auth; // TODO: Refactor to use re-exports instead of making module public
+// TODO: Refactor to use re-exports instead of making module public
+pub mod auth;
 pub mod class;
 pub mod group;
 pub mod project;
