@@ -9,26 +9,32 @@ use super::setup;
 struct TestState {
     _postgres: ContainerAsync<Postgres>,
     _redis: ContainerAsync<Redis>,
-    database: Database,
 }
 
 lazy_static! {
     static ref TEST_STATE: tokio::sync::OnceCell<TestState> = tokio::sync::OnceCell::new();
 }
 
-pub async fn get_database() -> &'static Database {
-    let state = TEST_STATE
+pub async fn get_database() -> Database {
+    let _state = TEST_STATE
         .get_or_init(|| async {
-            let (postgres, redis, database) = setup().await;
+            let (postgres, redis, _database) = setup().await;
             TestState {
                 _postgres: postgres,
                 _redis: redis,
-                database,
             }
         })
         .await;
 
-    &state.database
+    // Create a new database connection for each test
+    let database_url = backend::build_database_url();
+    let mut opts = sea_orm::ConnectOptions::new(database_url);
+    opts.max_connections(5)
+        .min_connections(1)
+        .connect_timeout(std::time::Duration::from_secs(10))
+        .acquire_timeout(std::time::Duration::from_secs(10));
+    
+    Database::new(opts).await.unwrap()
 }
 
 static TEST_COUNTER: AtomicU64 = AtomicU64::new(1);
@@ -71,7 +77,7 @@ macro_rules! create_test_app {
 
         actix_web::test::init_service(
             actix_web::App::new()
-                .app_data(actix_web::web::Data::new(db.clone()))
+                .app_data(actix_web::web::Data::new(db))
                 .service(
                     actix_web::web::scope("/api/v1")
                         .configure(backend::controller::register_controllers),

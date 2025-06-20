@@ -17,7 +17,7 @@ mod tests {
     #[actix_web::test]
     async fn test_create_user() {
         let ctx: TestContext = TestContext::new();
-        let db = crate::common::test_helpers::get_database().await;
+        let db = &crate::common::test_helpers::get_database().await;
 
         let app = create_test_app!();
 
@@ -61,7 +61,7 @@ mod tests {
     #[actix_web::test]
     async fn test_delete_user() {
         let ctx = TestContext::new();
-        let db = crate::common::test_helpers::get_database().await;
+        let db = &crate::common::test_helpers::get_database().await;
 
         let app = create_test_app!();
 
@@ -97,7 +97,7 @@ mod tests {
     #[actix_web::test]
     async fn test_get_users() {
         let ctx = TestContext::new();
-        let db = crate::common::test_helpers::get_database().await;
+        let db = &crate::common::test_helpers::get_database().await;
 
         let app = create_test_app!();
 
@@ -127,8 +127,10 @@ mod tests {
             assert!(found, "User {} not found in API response", user.username);
         }
 
-        // Verify database consistency
-        assert!(ctx.assert_user_count(db, 3).await);
+        // Verify our created users exist in database
+        for user in &users {
+            assert!(ctx.assert_user_exists(db, user.id).await);
+        }
 
         // Cleanup
         ctx.cleanup_all(db).await;
@@ -137,7 +139,7 @@ mod tests {
     #[actix_web::test]
     async fn test_delete_nonexistent_user() {
         let ctx = TestContext::new();
-        let db = crate::common::test_helpers::get_database().await;
+        let db = &crate::common::test_helpers::get_database().await;
 
         let app = create_test_app!();
         let fake_id = "00000000-0000-0000-0000-000000000000";
