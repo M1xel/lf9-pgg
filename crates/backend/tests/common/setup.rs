@@ -1,3 +1,5 @@
+use std::{thread, time::Duration};
+
 use backend::{Database, build_database_url};
 use log::{debug, info};
 use migration::{Migrator, MigratorTrait};
@@ -29,6 +31,8 @@ pub async fn setup() -> (ContainerAsync<Postgres>, ContainerAsync<Redis>, Databa
 
     // Wait for PostgreSQL to be ready
     wait_for_postgres_ready(&postgres).await;
+    dbg!("PostgreSQL is ready - Starting to sleep");
+    thread::sleep(Duration::from_secs(10));
 
     unsafe {
         std::env::set_var("DB_HOST", "127.0.0.1");
@@ -45,12 +49,12 @@ pub async fn setup() -> (ContainerAsync<Postgres>, ContainerAsync<Redis>, Databa
 
     // Configure connection pool for tests
     let mut opts = ConnectOptions::new(database_url);
-    opts.max_connections(200)
-        .min_connections(5)
-        .connect_timeout(std::time::Duration::from_secs(15))
-        .acquire_timeout(std::time::Duration::from_secs(15))
-        .idle_timeout(std::time::Duration::from_secs(30))
-        .max_lifetime(std::time::Duration::from_secs(300));
+    opts.max_connections(10)
+        .min_connections(2)
+        .connect_timeout(std::time::Duration::from_secs(30))
+        .acquire_timeout(std::time::Duration::from_secs(30))
+        .idle_timeout(std::time::Duration::from_secs(60))
+        .max_lifetime(std::time::Duration::from_secs(600));
 
     let database = Database::new(opts).await.unwrap();
 

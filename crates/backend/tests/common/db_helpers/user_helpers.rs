@@ -11,28 +11,8 @@ impl TestContext {
     ) -> Result<entity::user::Model, backend::error::ApiError> {
         let test_id = &self.test_id;
         let username = username.unwrap_or_else(|| format!("user_{}", test_id));
-        let name = name.unwrap_or_else(|| format!("Test User {}", test_id));
+        let name = name.unwrap_or_else(|| format!("name_{}", test_id));
         let password = "password123".to_string();
-
-        let user = db.create_user(name, username, password).await?;
-
-        if let Ok(mut users) = self.created_users.lock() {
-            users.push(user.id);
-        }
-
-        Ok(user)
-    }
-
-    pub async fn create_user_with_password(
-        &self,
-        db: &Database,
-        username: Option<String>,
-        name: Option<String>,
-        password: String,
-    ) -> Result<entity::user::Model, backend::error::ApiError> {
-        let test_id = &self.test_id;
-        let username = username.unwrap_or_else(|| format!("user_{}", test_id));
-        let name = name.unwrap_or_else(|| format!("Test User {}", test_id));
 
         let user = db.create_user(name, username, password).await?;
 
@@ -52,7 +32,7 @@ impl TestContext {
 
         for i in 0..count {
             let username = format!("user_{}_{}", self.test_id, i);
-            let name = format!("Test User {} {}", self.test_id, i);
+            let name = format!("name_{}_{}", self.test_id, i);
             let user = self.create_user(db, Some(username), Some(name)).await?;
             users.push(user);
         }
@@ -76,10 +56,8 @@ impl TestContext {
     }
 
     pub async fn assert_user_exists(&self, db: &Database, id: Uuid) -> bool {
-        match self.get_user_by_id(db, id).await {
-            Ok(Some(_)) => true,
-            _ => false,
-        }
+        dbg!("Check if user exists with ID: {}", id);
+        matches!(self.get_user_by_id(db, id).await, Ok(Some(_)))
     }
 
     pub async fn assert_user_count(&self, db: &Database, expected: usize) -> bool {

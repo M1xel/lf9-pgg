@@ -1,10 +1,7 @@
 use actix_web::{http::header, test};
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    common::test_helpers::{TestContext, UserFactory},
-    create_test_app,
-};
+use crate::{common::test_helpers::TestContext, create_test_app};
 
 #[cfg(test)]
 mod tests {
@@ -19,11 +16,17 @@ mod tests {
 
     #[actix_web::test]
     async fn test_create_user() {
-        let ctx = TestContext::new();
+        let ctx: TestContext = TestContext::new();
         let db = crate::common::test_helpers::get_database().await;
 
         let app = create_test_app!();
-        let user_data = UserFactory::create_unique_request();
+
+        // Create JSON payload using TestContext's ID
+        let user_data = serde_json::json!({
+            "username": format!("user_{}", ctx.test_id),
+            "name": format!("Test User {}", ctx.test_id),
+            "password": "password123"
+        });
 
         let resp = test::TestRequest::post()
             .uri("/api/v1/user")
@@ -32,7 +35,9 @@ mod tests {
             .send_request(&app)
             .await;
 
+        dbg!(&resp);
         let status = resp.status();
+
         assert!(
             status.is_success(),
             "Expected success status, got: {}",
@@ -60,10 +65,9 @@ mod tests {
 
         let app = create_test_app!();
 
-        // Create user using helper
         let user = ctx.create_user(db, None, None).await.unwrap();
 
-        // Verify user exists before deletion
+        // Check if user exists before deletion
         assert!(ctx.assert_user_exists(db, user.id).await);
 
         // Delete the user via API
@@ -72,6 +76,8 @@ mod tests {
             .send_request(&app)
             .await;
         let delete_status = delete_resp.status();
+
+        dbg!(&delete_resp);
 
         let delete_message: String = test::read_body_json(delete_resp).await;
         assert_eq!(delete_message, format!("User {} deleted", user.id));

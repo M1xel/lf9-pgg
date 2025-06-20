@@ -39,24 +39,7 @@ pub fn get_unique_test_id() -> String {
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_millis();
-    format!("test_{}_{}", timestamp, counter)
-}
-
-pub struct UserFactory;
-
-impl UserFactory {
-    pub fn create_request(username: Option<String>, name: Option<String>) -> serde_json::Value {
-        let test_id = get_unique_test_id();
-        serde_json::json!({
-            "username": username.unwrap_or_else(|| format!("user_{}", test_id)),
-            "name": name.unwrap_or_else(|| format!("Test User {}", test_id)),
-            "password": "password123"
-        })
-    }
-
-    pub fn create_unique_request() -> serde_json::Value {
-        Self::create_request(None, None)
-    }
+    format!("test_{}_{}", counter, timestamp)
 }
 
 #[derive(Clone)]
@@ -73,18 +56,6 @@ impl TestContext {
             created_users: std::sync::Arc::new(std::sync::Mutex::new(Vec::new())),
             created_projects: std::sync::Arc::new(std::sync::Mutex::new(Vec::new())),
         }
-    }
-
-    pub fn create_user_data(
-        &self,
-        username_prefix: Option<&str>,
-        name: Option<&str>,
-    ) -> serde_json::Value {
-        let username = username_prefix
-            .map(|prefix| format!("{}_{}", prefix, self.test_id))
-            .unwrap_or_else(|| format!("user_{}", self.test_id));
-
-        UserFactory::create_request(Some(username), name.map(String::from))
     }
 
     pub async fn cleanup_all(&self, db: &Database) {
@@ -107,25 +78,5 @@ macro_rules! create_test_app {
                 ),
         )
         .await
-    }};
-}
-
-#[macro_export]
-macro_rules! with_test_context {
-    ($test_fn:expr) => {{
-        async {
-            let ctx = $crate::common::test_helpers::TestContext::new();
-            let db = $crate::common::test_helpers::get_database().await;
-
-            let result = {
-                let ctx = &ctx;
-                let db = &*db;
-                $test_fn(ctx.clone(), db).await
-            };
-
-            ctx.cleanup_all(db).await;
-
-            result
-        }
     }};
 }

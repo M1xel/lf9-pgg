@@ -78,10 +78,12 @@ async fn get_user(
     responses(
         (status = 200, description = "User created successfully", body = entity::user::Model, content_type = "application/json"),
         (status = 400, description = "Invalid request data or validation error", body = String, content_type = "application/json"),
+        (status = 409, description = "User already exists", body = String, content_type = "application/json"),
         (status = 500, description = "Internal server error", body = String, content_type = "application/json")
     )
 )]
 #[post("")]
+// TODO: if a user with the same username already exists, return 409 Conflict
 async fn create_user(
     db: web::Data<Database>,
     user: web::Json<CreateUser>,
