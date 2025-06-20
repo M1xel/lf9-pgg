@@ -1,11 +1,13 @@
 use backend::{Database, build_database_url};
 use log::{debug, info};
 use migration::{Migrator, MigratorTrait};
+use sea_orm::ConnectOptions;
 use testcontainers::{ContainerAsync, ImageExt, runners::AsyncRunner};
 use testcontainers_modules::{postgres::Postgres, redis::Redis};
 
 pub async fn setup() -> (ContainerAsync<Postgres>, ContainerAsync<Redis>, Database) {
     let postgres = Postgres::default()
+        .with_tag("latest")
         .with_env_var("POSTGRES_DB", "test_db")
         .with_env_var("POSTGRES_USER", "postgres")
         .with_env_var("POSTGRES_PASSWORD", "postgres")
@@ -14,6 +16,7 @@ pub async fn setup() -> (ContainerAsync<Postgres>, ContainerAsync<Redis>, Databa
         .expect("Failed to start PostgreSQL container");
 
     let redis = Redis::default()
+        .with_tag("latest")
         .start()
         .await
         .expect("Failed to start Redis container");
@@ -40,7 +43,16 @@ pub async fn setup() -> (ContainerAsync<Postgres>, ContainerAsync<Redis>, Databa
     let database_url = build_database_url();
     info!("Database URL: {}", database_url);
 
-    let database = Database::new(database_url.into()).await.unwrap();
+    // Configure connection pool for tests
+    let mut opts = ConnectOptions::new(database_url);
+    opts.max_connections(200)
+        .min_connections(5)
+        .connect_timeout(std::time::Duration::from_secs(15))
+        .acquire_timeout(std::time::Duration::from_secs(15))
+        .idle_timeout(std::time::Duration::from_secs(30))
+        .max_lifetime(std::time::Duration::from_secs(300));
+
+    let database = Database::new(opts).await.unwrap();
 
     Migrator::up(database.connection(), None).await.unwrap();
 

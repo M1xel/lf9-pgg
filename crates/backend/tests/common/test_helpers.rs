@@ -3,7 +3,6 @@ use lazy_static::lazy_static;
 use std::sync::atomic::{AtomicU64, Ordering};
 use testcontainers::ContainerAsync;
 use testcontainers_modules::{postgres::Postgres, redis::Redis};
-use uuid::Uuid;
 
 use super::setup;
 
@@ -60,6 +59,7 @@ impl UserFactory {
     }
 }
 
+#[derive(Clone)]
 pub struct TestContext {
     pub test_id: String,
     pub created_users: std::sync::Arc<std::sync::Mutex<Vec<uuid::Uuid>>>,
@@ -113,13 +113,19 @@ macro_rules! create_test_app {
 #[macro_export]
 macro_rules! with_test_context {
     ($test_fn:expr) => {{
-        let ctx = $crate::common::test_helpers::TestContext::new();
-        let db = $crate::common::test_helpers::get_database().await;
+        async {
+            let ctx = $crate::common::test_helpers::TestContext::new();
+            let db = $crate::common::test_helpers::get_database().await;
 
-        let result = $test_fn(ctx.clone(), db).await;
+            let result = {
+                let ctx = &ctx;
+                let db = &*db;
+                $test_fn(ctx.clone(), db).await
+            };
 
-        ctx.cleanup_all(db).await;
+            ctx.cleanup_all(db).await;
 
-        result
+            result
+        }
     }};
 }

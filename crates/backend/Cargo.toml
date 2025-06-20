@@ -47,6 +47,9 @@ testcontainers-modules = { version = "0.12.1", features = [
     "postgres",
 ] }
 
+# Only needed for tests right now
+rand = "*"
+
 [features]
 serve = []
 

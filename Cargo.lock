@@ -635,6 +635,7 @@ dependencies = [
  "lazy_static",
  "log",
  "migration",
+ "rand 0.8.5",
  "sea-orm",
  "serde",
  "serde_json",
