@@ -15,6 +15,7 @@ pub fn setup(cfg: &mut actix_web::web::ServiceConfig) {
 pub struct CreateUser {
     #[validate(length(min = 4, max = 255))]
     /// Username (minimum 4 characters, maximum 255 characters)
+    /// TODO: Don't allow spaces, only alphanumeric characters and underscores
     username: String,
     #[validate(length(min = 3))]
     /// Full name of the user (minimum 3 characters)
