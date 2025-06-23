@@ -10,6 +10,7 @@ use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
 
+// TODO: Move the struct out of here into the controller
 #[derive(Deserialize, Validate, ToSchema)]
 pub struct CreateProject {
     #[validate(length(min = 3, max = 255))]
