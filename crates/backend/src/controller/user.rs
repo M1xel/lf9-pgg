@@ -1,5 +1,6 @@
 use crate::{Database, db::entity, error::ApiError};
 use actix_web::{Responder, delete, get, post, put, web};
+use actix_web::error::ErrorInternalServerError;
 use serde::Deserialize;
 use utoipa::ToSchema;
 use validator::Validate;
@@ -90,11 +91,24 @@ async fn create_user(
     user: web::Json<CreateUser>,
 ) -> Result<web::Json<entity::user::Model>, ApiError> {
     let user = user.into_inner();
+    user.validate()
+        .map_err(|e| ApiError::BadRequest(format!("\nValidation error: {}", e)))?;
+    
+    let username = user.username.clone();
     let result = db
         .create_user(user.name, user.username, user.password)
-        .await?;
+        .await;
 
-    Ok(web::Json(result))
+    match result {
+        Ok(result) => Ok(web::Json(result)),
+        Err(e) => {
+            if e.to_string().contains("user_username_key") {
+                Err(ApiError::UserAlreadyExists(username))
+            } else {
+                Err(ApiError::InternalServerError("/user/ - create_user - Error: {e}".to_owned()))
+            }
+        }
+    }
 }
 
 #[utoipa::path(

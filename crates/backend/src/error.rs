@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use actix_web::{HttpResponse, ResponseError, http::StatusCode};
 use sea_orm::TransactionError;
 use serde::Serialize;
@@ -22,8 +23,11 @@ pub enum ApiError {
     SessionInsertError(#[from] actix_session::SessionInsertError),
     #[error("Already logged in")]
     AlreadyLoggedIn,
+    #[error("User with username - {0} - already exists")]
+    UserAlreadyExists(String),
+    #[error("Internal Server Error for endpoint: {0}")]
+    InternalServerError(String)
 }
-
 impl ResponseError for ApiError {
     fn status_code(&self) -> StatusCode {
         match self {
@@ -35,6 +39,8 @@ impl ResponseError for ApiError {
             ApiError::Argon2Error(..) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::SessionInsertError(..) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::AlreadyLoggedIn => StatusCode::CONFLICT,
+            ApiError::UserAlreadyExists(..) => StatusCode::CONFLICT,
+            ApiError::InternalServerError(..) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
