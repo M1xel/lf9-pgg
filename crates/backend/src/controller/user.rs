@@ -1,6 +1,6 @@
 use crate::{Database, db::entity, error::ApiError};
-use actix_web::{Responder, delete, get, post, put, web};
 use actix_web::error::ErrorInternalServerError;
+use actix_web::{Responder, delete, get, post, put, web};
 use serde::Deserialize;
 use utoipa::ToSchema;
 use validator::Validate;
@@ -33,7 +33,19 @@ pub struct CreateUser {
     summary = "Get all users",
     description = "Retrieve a list of all users",
     responses(
-        (status = 200, description = "List of users retrieved successfully", body = Vec<entity::user::Model>, content_type = "application/json"),
+        (status = 200, description = "List of users retrieved successfully", body = Vec<entity::user::Model>, content_type = "application/json",
+        example = json!([
+            {
+                "id": "831195d1-01c4-4029-8284-349f5c41e398",
+                "username": "MyAwesomeUsername",
+                "name": "My Awesome Name",
+            },
+            {
+                "id": "0024870c-ea5c-4927-802f-8e44fc57b098",
+                "username": "AnotherUser",
+                "name": "Another User",
+            }
+        ])),
         (status = 500, description = "Internal server error", body = String, content_type = "application/json")
     )
 )]
@@ -55,7 +67,12 @@ async fn get_users(
         ("id" = String, Path, description = "User ID")
     ),
     responses(
-        (status = 200, description = "User retrieved successfully", body = entity::user::Model, content_type = "application/json"),
+        (status = 200, description = "User retrieved successfully", body = entity::user::Model, content_type = "application/json",
+        example = json!({
+            "id": "831195d1-01c4-4029-8284-349f5c41e398",
+            "username": "MyAwesomeUsername",
+            "name": "My Awesome Name",
+        })),
         (status = 404, description = "User not found", body = String, content_type = "application/json"),
         (status = 500, description = "Internal server error", body = String, content_type = "application/json")
     )
@@ -78,14 +95,18 @@ async fn get_user(
     description = "Create a new user with username, name, and password",
     request_body = CreateUser,
     responses(
-        (status = 200, description = "User created successfully", body = entity::user::Model, content_type = "application/json"),
+        (status = 200, description = "User created successfully", body = entity::user::Model, content_type = "application/json", 
+        example = json!({
+            "id": "831195d1-01c4-4029-8284-349f5c41e398",
+            "username": "MyAwesomeUsername",
+            "name": "My Awesome Name",
+        })),
         (status = 400, description = "Invalid request data or validation error", body = String, content_type = "application/json"),
-        (status = 409, description = "User already exists", body = String, content_type = "application/json"),
+        (status = 409, description = "User already exists", body = String, content_type = "application/json", example = "User with username - MyAwesomeUsername - already exists"),
         (status = 500, description = "Internal server error", body = String, content_type = "application/json")
     )
 )]
 #[post("")]
-// TODO: if a user with the same username already exists, return 409 Conflict
 async fn create_user(
     db: web::Data<Database>,
     user: web::Json<CreateUser>,
@@ -93,7 +114,7 @@ async fn create_user(
     let user = user.into_inner();
     user.validate()
         .map_err(|e| ApiError::BadRequest(format!("\nValidation error: {}", e)))?;
-    
+
     let username = user.username.clone();
     let result = db
         .create_user(user.name, user.username, user.password)
@@ -105,7 +126,9 @@ async fn create_user(
             if e.to_string().contains("user_username_key") {
                 Err(ApiError::UserAlreadyExists(username))
             } else {
-                Err(ApiError::InternalServerError("/user/ - create_user - Error: {e}".to_owned()))
+                Err(ApiError::InternalServerError(
+                    "/user/ - create_user - Error: {e}".to_owned(),
+                ))
             }
         }
     }
