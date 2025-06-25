@@ -1,46 +1,68 @@
-use std::fmt::{Display, Formatter};
 use actix_web::{HttpResponse, ResponseError, http::StatusCode};
 use sea_orm::TransactionError;
 use serde::Serialize;
+use std::fmt::{Display, Formatter};
 use thiserror::Error;
 use utoipa::ToSchema;
 
 #[derive(Error, Debug)]
 pub enum ApiError {
+    // Database errors
     #[error("Database Error: {0}")]
     Database(#[from] sea_orm::DbErr),
-    #[error("Unauthorized")]
-    Unauthorized,
-    #[error("Not Found")]
-    NotFound,
+
+    // Generic HTTP errors
     #[error("Bad Request: {0}")]
-    BadRequest(String),
-    #[error("Validation Error: {0}")]
-    ValidationError(#[from] validator::ValidationErrors),
-    #[error("Argon2 Error: {0}")]
-    Argon2Error(String),
-    #[error("Session insert error: {0}")]
-    SessionInsertError(#[from] actix_session::SessionInsertError),
+    BadRequest(String), // 400 Bad Request
+    #[error("Unauthorized")]
+    Unauthorized, // 401 Unauthorized
+    #[error("Not Found")]
+    NotFound, // 404 Not Found
+    #[error("Internal Server Error for endpoint: {0}")]
+    InternalServerError(String), // 500 Internal Server Error
+
+    // Session errors
     #[error("Already logged in")]
     AlreadyLoggedIn,
+    #[error("Session insert error: {0}")]
+    SessionInsertError(#[from] actix_session::SessionInsertError),
+
+    // Validation errors
+    #[error("Validation Error: {0}")]
+    ValidationError(#[from] validator::ValidationErrors),
+
+    // Argon2 errors
+    #[error("Argon2 Error: {0}")]
+    Argon2Error(String),
+
+    // User errors
     #[error("User with username - {0} - already exists")]
     UserAlreadyExists(String),
-    #[error("Internal Server Error for endpoint: {0}")]
-    InternalServerError(String)
 }
 impl ResponseError for ApiError {
     fn status_code(&self) -> StatusCode {
         match self {
-            ApiError::Database(..) => StatusCode::INTERNAL_SERVER_ERROR,
-            ApiError::NotFound => StatusCode::NOT_FOUND,
-            ApiError::Unauthorized => StatusCode::UNAUTHORIZED,
-            ApiError::BadRequest(..) => StatusCode::BAD_REQUEST,
-            ApiError::ValidationError(..) => StatusCode::BAD_REQUEST,
-            ApiError::Argon2Error(..) => StatusCode::INTERNAL_SERVER_ERROR,
-            ApiError::SessionInsertError(..) => StatusCode::INTERNAL_SERVER_ERROR,
-            ApiError::AlreadyLoggedIn => StatusCode::CONFLICT,
-            ApiError::UserAlreadyExists(..) => StatusCode::CONFLICT,
-            ApiError::InternalServerError(..) => StatusCode::INTERNAL_SERVER_ERROR,
+            // Database errors
+            ApiError::Database(..) => StatusCode::INTERNAL_SERVER_ERROR, // 500 Internal Server Error
+
+            // Generic HTTP errors
+            ApiError::BadRequest(..) => StatusCode::BAD_REQUEST, // 400 Bad Request
+            ApiError::Unauthorized => StatusCode::UNAUTHORIZED,  // 401 Unauthorized
+            ApiError::NotFound => StatusCode::NOT_FOUND,         // 404 Not Found
+            ApiError::InternalServerError(..) => StatusCode::INTERNAL_SERVER_ERROR, // 500 Internal Server Error
+
+            // Session errors
+            ApiError::AlreadyLoggedIn => StatusCode::CONFLICT, // 409 Conflict
+            ApiError::SessionInsertError(..) => StatusCode::INTERNAL_SERVER_ERROR, // 500 Internal Server Error
+
+            // Validation errors
+            ApiError::ValidationError(..) => StatusCode::BAD_REQUEST, // 400 Bad Request
+
+            // Argon2 errors
+            ApiError::Argon2Error(..) => StatusCode::INTERNAL_SERVER_ERROR, // 500 Internal Server Error
+
+            // User errors
+            ApiError::UserAlreadyExists(..) => StatusCode::CONFLICT, // 409 Conflict
         }
     }
 
