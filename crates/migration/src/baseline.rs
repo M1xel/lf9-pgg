@@ -64,6 +64,9 @@ impl MigrationTrait for Migration {
                     .col(uuid(UserGroupProject::UserId))
                     .col(uuid(UserGroupProject::GroupId))
                     .col(uuid(UserGroupProject::ProjectId))
+                    .col(uuid_uniq(UserGroupProject::FeedbackId).null())
+                    .col(boolean(UserGroupProject::FeedbackCompleted).default(false))
+                    .col(date_time(UserGroupProject::FeedbackCompletedAt).null())
                     .primary_key(
                         Index::create()
                             .col(UserGroupProject::UserId)
@@ -173,6 +176,10 @@ enum UserGroupProject {
     UserId,
     GroupId,
     ProjectId,
+    // Feedback
+    FeedbackId,
+    FeedbackCompleted,
+    FeedbackCompletedAt,
 }
 
 #[derive(DeriveIden)]
